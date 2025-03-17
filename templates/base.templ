@@ -1,0 +1,53 @@
+package templates
+
+templ Base(title string) {
+	<!DOCTYPE html>
+	<html lang="en" data-theme="valentine">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta description="Rinku"/>
+			// <meta name="htmx-config" content='{"includeIndicatorStyles": false}'/>
+			<link rel="icon" type="image/x-icon" href="/assets/favicon.ico"/>
+			<title>{ title }</title>
+			<link href="/assets/css/output/styles.css" rel="stylesheet"/>
+			<script src="/static/js/output/htmx-2.0.4.min.js"></script>
+		</head>
+		<body class="bg-base-100 grid min-h-dvh content-center">
+			{ children... }
+		</body>
+	</html>
+}
+
+templ Error(message string) {
+	@Base("Error!") {
+		<div>{ message }</div>
+	}
+}
+
+templ Holding(target string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta description="Rinku"/>
+			<meta http-equiv="refresh" content={ "3; url=" + target }/>
+			<link href="/assets/css/raw.css" rel="stylesheet"/>
+		</head>
+		<body>
+			<main>
+				<div>Redirecting you to <a href={ templ.URL(target) }>{ target }</a> in <span id="counter">3</span>...</div>
+			</main>
+			<script>
+				let count = 3
+				const counter = document.getElementById("counter")
+				setInterval(() => {
+					if (count === 0) {return}
+					count -= 1
+					counter.innerText = String(count)
+				}, 980)
+			</script>
+		</body>
+	</html>
+}

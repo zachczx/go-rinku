@@ -1,0 +1,16 @@
+*templ.go
+*templ.txt
+static/css/output
+static/js/output
+static/uploads
+node_modules/
+bin/
+.env
+.vscode
+tmp/
+handlers/
+*.old
+*.code-workspace
+templates/landing.templ
+bfg.jar
+
