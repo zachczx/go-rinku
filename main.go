@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"gorinku/shortener"
 	"gorinku/templates"
@@ -14,6 +14,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // Pg driver
 	"github.com/jmoiron/sqlx"
 )
+
+var emptyString string
 
 func main() {
 	var err error
@@ -25,67 +27,87 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello world!"))
+		TemplRender(w, r, templates.Landing())
 	})
 	mux.HandleFunc("GET /admin", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("ADMIN HANDLER START:", r.URL.Path)
-		records, err := shortener.ListAll()
+		urls, err := shortener.ListAll()
 		fmt.Println("INVOKER 1")
 		if err != nil {
 			fmt.Println(err)
-			TemplRender(w, templates.Error(err.Error()))
+			TemplRender(w, r, templates.Error(emptyString))
 			return
 		}
-		TemplRender(w, templates.AdminMain(records))
+		TemplRender(w, r, templates.AdminMain(urls))
 		fmt.Println("ADMIN HANDLER END")
 	})
 	mux.Handle("GET /admin/new", http.RedirectHandler("/admin", http.StatusSeeOther))
 	mux.HandleFunc("POST /admin/new", func(w http.ResponseWriter, r *http.Request) {
-		var hold bool = false
+		hold := false
 		fmt.Println(r.FormValue("hold"))
 		if r.FormValue("hold") == "true" {
 			hold = true
 		}
-		input := shortener.Record{Slug: r.FormValue("slug"), Target: r.FormValue("target"), Hold: hold}
+		input := shortener.URL{Slug: r.FormValue("slug"), Target: r.FormValue("target"), Hold: hold}
 		if err := shortener.Insert(input); err != nil {
-			TemplRender(w, templates.Error(err.Error()))
+			fmt.Println(err)
+			TemplRender(w, r, templates.Error(emptyString))
 		}
-		records, err := shortener.ListAll()
+		urls, err := shortener.ListAll()
 		if err != nil {
-			TemplRender(w, templates.Error(err.Error()))
+			fmt.Println(err)
+			TemplRender(w, r, templates.Error(emptyString))
 			return
 		}
-		TemplRender(w, templates.AdminMain(records))
+		TemplRender(w, r, templates.AdminMain(urls))
 	})
-	mux.HandleFunc("GET /admin/populate", func(w http.ResponseWriter, r *http.Request) {
-		if err := shortener.Create(); err != nil {
+	mux.HandleFunc("GET /admin/reset", func(w http.ResponseWriter, r *http.Request) {
+		if err := shortener.Reset(); err != nil {
 			http.Error(w, "Error!", 500)
 		}
-		w.Write([]byte("written!"))
+		if _, err := w.Write([]byte("written!")); err != nil {
+			fmt.Println(err)
+			TemplRender(w, r, templates.Error(emptyString))
+			return
+		}
 	})
 	mux.HandleFunc("GET /{slug}", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("SLUG HANDLER START:", r.URL.Path)
 		slug := r.PathValue("slug")
 		record, err := shortener.Check(slug)
 		if err != nil {
-			TemplRender(w, templates.Error(err.Error()))
+			TemplRender(w, r, templates.Error(emptyString))
+			return
+		}
+		err = shortener.Log(record.ID, r)
+		if err != nil {
+			TemplRender(w, r, templates.Error(emptyString))
 			return
 		}
 		if !record.Hold {
 			http.Redirect(w, r, record.Target, http.StatusSeeOther)
 			return
 		}
-		TemplRender(w, templates.Holding(record.Target))
+		TemplRender(w, r, templates.Holding(record.Target))
 		fmt.Println("SLUG HANDLER END")
 	})
 	mux.Handle("GET /assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 
-	http.ListenAndServe(":8001", mux)
+	server := &http.Server{
+		Addr:              ":8001",
+		ReadHeaderTimeout: 5 * time.Second,
+		Handler:           mux,
+	}
+
+	err = server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func TemplRender(w http.ResponseWriter, c templ.Component) error {
-	if err := c.Render(context.Background(), w); err != nil {
-		return fmt.Errorf("error: templ render: %w", err)
+func TemplRender(w http.ResponseWriter, r *http.Request, c templ.Component) {
+	if err := c.Render(r.Context(), w); err != nil {
+		fmt.Println("error: templ render: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-	return nil
 }

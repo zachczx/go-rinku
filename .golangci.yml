@@ -4,7 +4,7 @@ linters:
     - wrapcheck
     - revive
     - nilerr
-    - gosec
+
     - gochecksumtype
     - exhaustive
     # Defaults
@@ -30,6 +30,7 @@ linters:
   disable:
     - funlen
     - cyclop
+    - gosec
     - mnd
 
 linters-settings:

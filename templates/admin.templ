@@ -6,13 +6,13 @@ templ Default(message string) {
 	<div>{ message }</div>
 }
 
-templ AdminMain(records []shortener.Record) {
+templ AdminMain(urls []shortener.URL) {
 	@Base("Admin Control Panel") {
 		<div class="mx-auto grid h-full max-w-[1400px] grid-cols-[auto_1fr] content-center gap-16">
 			<div>
 				<h2 class="mb-4 text-4xl font-medium">Add New</h2>
 				<div>
-					<form method="post" action="/admin/new" class="grid gap-y-4" hx-post="/admin/new" hx-target="#records" hx-swap="outerHTML" hx-select="#records">
+					<form method="post" action="/admin/new" class="grid gap-y-4" hx-post="/admin/new" hx-target="#urls" hx-swap="outerHTML" hx-select="#urls">
 						<label class="input">
 							<svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path></g></svg>
 							<input type="text" name="slug" class="grow" placeholder="Slug"/>
@@ -31,18 +31,24 @@ templ AdminMain(records []shortener.Record) {
 					</form>
 				</div>
 			</div>
-			<div id="records" class="mx-auto grid grid-cols-5 gap-y-4">
+			<div id="urls" class="mx-auto grid w-full grid-cols-6 content-start gap-y-4">
 				<div class="bg-base-300 border-b-base-content border-b p-2 font-medium">ID</div>
 				<div class="bg-base-300 border-b-base-content border-b p-2 font-medium">Slug</div>
 				<div class="bg-base-300 border-b-base-content border-b p-2 font-medium">Target</div>
 				<div class="bg-base-300 border-b-base-content border-b p-2 font-medium">Hold</div>
 				<div class="bg-base-300 border-b-base-content border-b p-2 font-medium">Created At</div>
-				for i := 0; i < len(records); i++ {
-					<div class="border-b-base-content/30 border-b">{ records[i].ID.String() }</div>
-					<div class="border-b-base-content/30 border-b">{ records[i].Slug }</div>
-					<div class="border-b-base-content/30 border-b">{ records[i].Target }</div>
-					<div class="border-b-base-content/30 border-b">{ records[i].HoldString() }</div>
-					<div class="border-b-base-content/30 border-b">{ records[i].CreatedAtFormatted() }</div>
+				<div class="bg-base-300 border-b-base-content border-b p-2 font-medium">Hits</div>
+				if len(urls) > 0 {
+					for i := 0; i < len(urls); i++ {
+						<div class="border-b-base-content/30 border-b px-4">{ urls[i].ID.String() }</div>
+						<div class="border-b-base-content/30 border-b px-4">{ urls[i].Slug }</div>
+						<div class="border-b-base-content/30 border-b px-4">{ urls[i].Target }</div>
+						<div class="border-b-base-content/30 border-b px-4">{ urls[i].HoldString() }</div>
+						<div class="border-b-base-content/30 border-b px-4">{ urls[i].CreatedAtFormatted() }</div>
+						<div class="border-b-base-content/30 border-b px-4">{ urls[i].HitsString() }</div>
+					}
+				} else {
+					<div class="col-span-6 w-full text-center">Nothing here!</div>
 				}
 			</div>
 		</div>

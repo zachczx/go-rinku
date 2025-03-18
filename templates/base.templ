@@ -11,7 +11,7 @@ templ Base(title string) {
 			<link rel="icon" type="image/x-icon" href="/assets/favicon.ico"/>
 			<title>{ title }</title>
 			<link href="/assets/css/output/styles.css" rel="stylesheet"/>
-			<script src="/static/js/output/htmx-2.0.4.min.js"></script>
+			<script src="/assets/js/htmx-2.0.4.min.js"></script>
 		</head>
 		<body class="bg-base-100 grid min-h-dvh content-center">
 			{ children... }
@@ -50,4 +50,22 @@ templ Holding(target string) {
 			</script>
 		</body>
 	</html>
+}
+
+templ Landing() {
+	@Base("Zixian's link shortener") {
+		<main class="grid min-h-dvh grid-rows-[1fr_auto] justify-items-center">
+			<div class="grid content-center justify-items-center">
+				<h1 class="text-7xl font-medium">Rinku</h1>
+				<p class="text-base-content/70 mb-16">Zixian's link shortener</p>
+				<div class="mb-8">
+					<h2 class="font-bold">リンク - rinku</h2>
+					<p class="text-base-content/70">link, hyperlink</p>
+				</div>
+			</div>
+			<footer class="px-8 py-4 text-sm">
+				🦖 © Zixian Chen 🦕 <a href="https://zixianchen.com/projects" class="underline">Other Stuff</a>
+			</footer>
+		</main>
+	}
 }

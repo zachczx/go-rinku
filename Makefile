@@ -31,9 +31,8 @@ dev/prettier:
 # maildev smtp server @ http://localhost:1025/ and gui @ http://localhost:1080/
 #	docker compose -f ./docker-compose-mail.yaml build && docker compose -f ./docker-compose-mail.yaml up
 
-# lint:
-# 	golangci-lint run && \
-# 	npx eslint
+lint:
+	golangci-lint run 
 
 # prettier screws up the minification if last
 # esbuild needs to be before tailwind to generate the proper classes, e.g. keeps generating spinner instead of dots even with correct classes
