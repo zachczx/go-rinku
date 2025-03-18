@@ -1,7 +1,7 @@
 :root {
 	--primary: #e96d7b;
 	--base-100: #fae7f4;
-	--base-content: 99, 44, 59;
+	--base-content: rgba(99, 44, 59);
 	--secondary: ##a991f7;
 	--accent: #66b1b3;
 }
@@ -76,7 +76,6 @@ body {
 }
 
 main {
-	font-size: 1.5rem;
 	color: var(--base-content);
 	min-height: 100dvh;
 	display: grid;
@@ -86,9 +85,6 @@ main {
 	justify-items: center;
 
 	div {
-		/* border: 2px solid rgba(var(--base-content), 0.6);
-		border-radius: 1rem;
-		padding: 0.5rem 1rem 0.5rem 1rem; */
 		display: grid;
 		align-content: center;
 		justify-items: center;
@@ -106,7 +102,7 @@ a {
 }
 
 #counter {
-	font-size: 2.5rem;
+	font-size: 2rem;
 	font-weight: 700;
 }
 

@@ -14,8 +14,9 @@ dev/tailwind:
 	npx @tailwindcss/cli -i ./assets/css/index.css -o assets/css/output/styles.css --minify --watch
 
 # only difference here with the Dockerfile one is sourcemap 
-# dev/esbuild:
-# 	npx esbuild ./static/js/index.ts --bundle --sourcemap --outdir=./static/js/output --minify --watch
+dev/esbuild:
+	npx esbuild ./assets/css/raw.css --outdir=./assets/css/output --minify --watch
+# npx esbuild ./static/js/admin/upload.ts ./static/js/index.ts ./static/js/sse.ts ./static/js/post.ts ./static/js/post-partial.ts ./static/js/settings.ts ./static/js/search.ts ./static/js/register-login.ts ./static/js/htmx-bundle.ts ./static/js/post-form.ts --bundle --sourcemap --outdir=./static/js/output --minify --watch
 
 dev/templ:
 	templ generate --watch --proxy="http://localhost:8001" --cmd="go run ." --open-browser=false
@@ -37,5 +38,4 @@ lint:
 # prettier screws up the minification if last
 # esbuild needs to be before tailwind to generate the proper classes, e.g. keeps generating spinner instead of dots even with correct classes
 dev: 
-# make -j4 dev/templ dev/prettier dev/esbuild dev/tailwind
-	make -j3 dev/templ dev/prettier dev/tailwind
+	make -j4 dev/templ dev/prettier dev/esbuild dev/tailwind
