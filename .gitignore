@@ -1,8 +1,7 @@
 *templ.go
 *templ.txt
-static/css/output
-static/js/output
-static/uploads
+assets/css/output
+assets/js/output
 node_modules/
 bin/
 .env
@@ -13,5 +12,3 @@ handlers/
 *.code-workspace
 templates/landing.templ
 bfg.jar
-
-/assets/css/output
