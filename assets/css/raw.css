@@ -6,6 +6,70 @@
 	--accent: #66b1b3;
 }
 
+/* Resets */
+/* https://www.joshwcomeau.com/css/custom-css-reset/ */
+/* 1. Use a more-intuitive box-sizing model */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+/* 2. Remove default margin */
+* {
+	margin: 0;
+}
+body {
+	/* 3. Add accessible line-height */
+	line-height: 1.5;
+	/* 4. Improve text rendering */
+	-webkit-font-smoothing: antialiased;
+}
+/* 5. Improve media defaults */
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+/* 6. Inherit fonts for form controls */
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+/* 7. Avoid text overflows */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
+}
+/* 8. Improve line wrapping */
+p {
+	text-wrap: pretty;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	text-wrap: balance;
+}
+/*
+	9. Create a root stacking context
+  */
+#root,
+#__next {
+	isolation: isolate;
+}
+
 body {
 	font-family: 'Fira Code Variable', monospace;
 	background-color: var(--base-100);
@@ -16,13 +80,24 @@ main {
 	color: var(--base-content);
 	min-height: 100dvh;
 	display: grid;
+
+	grid-template-rows: 1fr auto;
 	align-items: center;
 	justify-items: center;
 
 	div {
-		border: 2px solid rgba(var(--base-content), 0.6);
+		/* border: 2px solid rgba(var(--base-content), 0.6);
 		border-radius: 1rem;
-		padding: 0.5rem 1rem 0.5rem 1rem;
+		padding: 0.5rem 1rem 0.5rem 1rem; */
+		display: grid;
+		align-content: center;
+		justify-items: center;
+		h1 {
+			font-size: 5rem;
+		}
+	}
+	footer {
+		font-size: 1rem;
 	}
 }
 

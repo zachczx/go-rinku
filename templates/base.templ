@@ -37,7 +37,13 @@ templ Holding(target string) {
 		</head>
 		<body>
 			<main>
-				<div>Redirecting you to <a href={ templ.URL(target) }>{ target }</a> in <span id="counter">3</span>...</div>
+				<div>
+					<h1>Rinku</h1>
+					<p>Redirecting you to <a href={ templ.URL(target) }>{ target }</a> in <span id="counter">3</span>...</p>
+				</div>
+				<footer>
+					🦖 © Zixian Chen 🦕 <a href="https://zixianchen.com/projects" class="underline">Other Stuff</a>
+				</footer>
 			</main>
 			<script>
 				let count = 3
