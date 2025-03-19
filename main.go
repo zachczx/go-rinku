@@ -94,7 +94,7 @@ func main() {
 	mux.Handle("GET /assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 
 	server := &http.Server{
-		Addr:              ":8001",
+		Addr:              os.Getenv("LISTEN_ADDR"),
 		ReadHeaderTimeout: 5 * time.Second,
 		Handler:           mux,
 	}

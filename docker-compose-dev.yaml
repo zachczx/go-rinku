@@ -1,0 +1,12 @@
+name: go-rinku
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '6001:6001'
+    restart: unless-stopped
+    env_file:
+      - .env
