@@ -1,17 +1,41 @@
 @import 'tailwindcss';
-@plugin "daisyui" {
-	themes: valentine --default;
-}
-/* @plugin "daisyui";
+@plugin "daisyui";
 @plugin "daisyui/theme" {
-  name: "valentine";
-  default: true;
-} */
+	name: 'valentine';
+	default: true;
+}
 
 @layer base {
 	:root {
 		font-family: 'Fira Code Variable', monospace;
 		/* font-family: "Bitter Variable", serif; */
+	}
+
+	.id {
+		label {
+			/* Eye show */
+			.eye:has(+ .eye-cancel + input[type='checkbox']:checked) {
+				display: none !important;
+			}
+			.eye:not(:has(+ .eye-cancel + input[type='checkbox']:checked)) {
+				width: 1rem;
+				height: 1rem;
+			}
+
+			.eye-cancel:has(+ input[type='checkbox']:checked) {
+				width: 1rem;
+				height: 1rem;
+			}
+			.eye-cancel:not(:has(+ input[type='checkbox']:checked)) {
+				display: none !important;
+			}
+		}
+
+		&:not(:has(label > input[type='checkbox']:checked)) {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 	}
 
 	@view-transition {

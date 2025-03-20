@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,6 +18,8 @@ import (
 
 var emptyString string
 
+var ctx = context.Background()
+
 func main() {
 	var err error
 	pg := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
@@ -25,52 +28,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	user := &User{Username: ""}
+
+	service := NewAuthService(
+		os.Getenv("STYTCH_PROJECT_ID"),
+		os.Getenv("STYTCH_SECRET"),
+	)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		TemplRender(w, r, templates.Landing())
 	})
-	mux.HandleFunc("GET /admin", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("ADMIN HANDLER START:", r.URL.Path)
-		urls, err := shortener.ListAll()
-		fmt.Println("INVOKER 1")
-		if err != nil {
-			fmt.Println(err)
-			TemplRender(w, r, templates.Error(emptyString))
-			return
-		}
-		TemplRender(w, r, templates.AdminMain(urls))
-		fmt.Println("ADMIN HANDLER END")
-	})
-	mux.Handle("GET /admin/new", http.RedirectHandler("/admin", http.StatusSeeOther))
-	mux.HandleFunc("POST /admin/new", func(w http.ResponseWriter, r *http.Request) {
-		hold := false
-		fmt.Println(r.FormValue("hold"))
-		if r.FormValue("hold") == "true" {
-			hold = true
-		}
-		input := shortener.URL{Slug: r.FormValue("slug"), Target: r.FormValue("target"), Hold: hold}
-		if err := shortener.Insert(input); err != nil {
-			fmt.Println(err)
-			TemplRender(w, r, templates.Error(emptyString))
-		}
-		urls, err := shortener.ListAll()
-		if err != nil {
-			fmt.Println(err)
-			TemplRender(w, r, templates.Error(emptyString))
-			return
-		}
-		TemplRender(w, r, templates.AdminMain(urls))
-	})
-	mux.HandleFunc("GET /admin/reset", func(w http.ResponseWriter, r *http.Request) {
-		if err := shortener.Reset(); err != nil {
-			http.Error(w, "Error!", 500)
-		}
-		if _, err := w.Write([]byte("written!")); err != nil {
-			fmt.Println(err)
-			TemplRender(w, r, templates.Error(emptyString))
-			return
-		}
-	})
+
 	mux.HandleFunc("GET /{slug}", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("SLUG HANDLER START:", r.URL.Path)
 		slug := r.PathValue("slug")
@@ -93,6 +62,28 @@ func main() {
 	})
 	mux.Handle("GET /assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 
+	// Admin routes
+	mux.HandleFunc("GET /admin/login", func(w http.ResponseWriter, r *http.Request) {
+		TemplRender(w, r, templates.Login())
+	})
+	mux.Handle("GET /admin", service.RequireAuthentication(user, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("ADMIN HANDLER START:", r.URL.Path)
+		urls, err := shortener.ListAll()
+		if err != nil {
+			fmt.Println(err)
+			TemplRender(w, r, templates.Error(emptyString))
+			return
+		}
+		TemplRender(w, r, templates.AdminMain(urls))
+		fmt.Println("ADMIN HANDLER END")
+	})))
+	mux.HandleFunc("GET /admin/authenticate", service.authenticateHandler)
+	mux.Handle("GET /admin/new", http.RedirectHandler("/admin", http.StatusSeeOther))
+	mux.HandleFunc("POST /admin/new", newURLHandler)
+	mux.HandleFunc("POST /admin/delete/{ID}", deleteURLHandler)
+	mux.HandleFunc("POST /admin/login/sendlink", service.sendMagicLinkHandler)
+	mux.HandleFunc("GET /admin/reset", resetDestroyHandler)
+	mux.Handle("GET /admin/logout", service.logout(user))
 	server := &http.Server{
 		Addr:              os.Getenv("LISTEN_ADDR"),
 		ReadHeaderTimeout: 5 * time.Second,

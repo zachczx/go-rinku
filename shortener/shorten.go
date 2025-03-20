@@ -39,7 +39,7 @@ func (url URL) HitsString() string {
 }
 
 func (rec URL) CreatedAtFormatted() string {
-	return rec.CreatedAt.Format(time.RFC822)
+	return rec.CreatedAt.Format("2 Jan 2006")
 }
 
 var slugLength = 4
@@ -109,7 +109,16 @@ var urlRegex = regexp.MustCompile(`^(http:\/\/|https:\/\/).+`)
 
 func HTTPPrefix(target string) string {
 	if !urlRegex.MatchString(target) {
-		target = "http://" + target
+		fmt.Println("HTTP/HTTPS not found in url prefix")
+		target = "https://" + target
 	}
 	return target
+}
+
+func Delete(id uuid.UUID) error {
+	_, err := DB.Exec(`DELETE FROM urls WHERE url_id = $1`, id)
+	if err != nil {
+		return fmt.Errorf("err: delete: %w", err)
+	}
+	return nil
 }
