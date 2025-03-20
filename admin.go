@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -46,6 +45,7 @@ func (s *AuthService) RequireAuthentication(u *User, h http.Handler) http.Handle
 		user := s.getAuthenticatedUser(w, r)
 		if user != nil {
 			u.Username = user.Emails[0].Email
+			fmt.Println(u.Username)
 		}
 		if user == nil {
 			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
@@ -77,7 +77,7 @@ func (s *AuthService) getAuthenticatedUser(w http.ResponseWriter, r *http.Reques
 	}
 
 	resp, err := s.client.Sessions.Authenticate(
-		context.Background(),
+		ctx,
 		&sessions.AuthenticateParams{
 			SessionToken: token,
 		})
