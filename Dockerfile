@@ -34,8 +34,8 @@ COPY --from=first /app/package.json /app/go-rinku /app/package-lock.json /app/
 COPY --from=first /app/templates /app/templates
 COPY --from=first /app/assets /app/assets
 RUN npm install
-RUN npx @tailwindcss/cli -i ./assets/css/index.css -o assets/css/output/styles.css --minify --watch &&\       
-    npx esbuild ./assets/css/raw.css --outdir=./assets/css/output --minify --watch
+RUN npx @tailwindcss/cli -i ./assets/css/index.css -o ./assets/css/output/styles.css --minify &&\       
+    npx esbuild ./assets/css/raw.css --outdir=./assets/css/output --minify
 
 ####################################################################################
 

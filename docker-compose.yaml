@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - '${PORT}:${PORT}'
     restart: unless-stopped
     environment:
       LISTEN_ADDR: ${LISTEN_ADDR}
