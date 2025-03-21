@@ -19,6 +19,8 @@ var emptyString string
 
 var ctx = context.Background()
 
+var domain = "zczx.org/"
+
 func main() {
 	var err error
 	pg := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))

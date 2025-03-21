@@ -7,7 +7,7 @@ templ Default(message string) {
 	<div>{ message }</div>
 }
 
-templ AdminMain(urls []shortener.URL) {
+templ AdminMain(urls []shortener.URL, domain string) {
 	@Base("Admin Control Panel") {
 		<div class="mx-auto grid h-full min-h-dvh w-full max-w-[1400px] grid-cols-[auto_1fr] grid-rows-[auto_1fr] content-start gap-x-16 pt-4">
 			<div class="col-span-2 flex justify-end"><a href="/admin/logout" class="underline">Logout</a></div>
@@ -15,10 +15,13 @@ templ AdminMain(urls []shortener.URL) {
 				<h2 class="mb-4 text-4xl font-medium">Add New</h2>
 				<div>
 					<form method="post" action="/admin/new" class="grid gap-y-4" hx-post="/admin/new" hx-target="#urls" hx-swap="outerHTML" hx-select="#urls">
-						<label class="input">
-							<svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path></g></svg>
-							<input type="text" name="slug" class="grow" placeholder="Slug (optional)"/>
-						</label>
+						<div class="flex items-center gap-2">
+							{ domain }
+							<label class="input">
+								// <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path></g></svg>
+								<input type="text" name="slug" class="grow" placeholder="Slug (optional)"/>
+							</label>
+						</div>
 						<div class="join grid grid-cols-[auto_1fr]">
 							<select class="select join-item" name="protocol">
 								<option value="https" selected>https</option>
@@ -103,7 +106,7 @@ templ AdminAnalyze(hits []shortener.Hit) {
 		<div class="mx-auto grid h-full min-h-dvh w-full max-w-[1400px] grid-rows-[auto_1fr] content-start gap-x-16 pt-4">
 			<div class="grid grid-cols-2">
 				<div class="flex">
-					<a href="/admin" class="underline flex items-center gap-2">
+					<a href="/admin" class="flex items-center gap-2 underline">
 						<svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" class="material-symbols:arrow-left-alt-rounded" viewBox="0 0 24 24">
 							<!-- Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
 							<path fill="currentColor" d="m7.85 13l2.85 2.85q.3.3.288.7t-.288.7q-.3.3-.712.313t-.713-.288L4.7 12.7q-.3-.3-.3-.7t.3-.7l4.575-4.575q.3-.3.713-.287t.712.312q.275.3.288.7t-.288.7L7.85 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"></path>
@@ -124,8 +127,14 @@ templ AdminAnalyze(hits []shortener.Hit) {
 				<div class="bg-base-300 px-8 py-4 font-medium">Created At</div>
 				if len(hits) > 0 {
 					for i := 0; i < len(hits); i++ {
-						<div class="border-b-base-content/30 border-b ps-4 pe-8 py-4">{ hits[i].ID.String() }</div>
-						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].Referer }</div>
+						<div class="border-b-base-content/30 border-b py-4 ps-4 pe-8">{ hits[i].ID.String() }</div>
+						<div class="border-b-base-content/30 border-b px-8 py-4">
+							if len(hits[i].Referer) > 0 {
+								<a href={ templ.URL(hits[i].Referer) }>{ hits[i].Referer }</a>
+							} else {
+								{ hits[i].Referer }
+							}
+						</div>
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].SecChUa }</div>
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].SecChUaMobile }</div>
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].SecChUaPlatform }</div>

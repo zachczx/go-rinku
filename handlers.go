@@ -33,7 +33,7 @@ func newURLHandler(w http.ResponseWriter, r *http.Request) {
 		TemplRender(w, r, templates.Error(emptyString))
 		return
 	}
-	TemplRender(w, r, templates.AdminMain(urls))
+	TemplRender(w, r, templates.AdminMain(urls, domain))
 }
 
 func resetDestroyHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +67,7 @@ func deleteURLHandler(w http.ResponseWriter, r *http.Request) {
 		TemplRender(w, r, templates.Error(emptyString))
 		return
 	}
-	TemplRender(w, r, templates.AdminMain(urls))
+	TemplRender(w, r, templates.AdminMain(urls, domain))
 }
 
 func shortenHandler(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +105,7 @@ func adminMainHandler(w http.ResponseWriter, r *http.Request) {
 		TemplRender(w, r, templates.Error(emptyString))
 		return
 	}
-	TemplRender(w, r, templates.AdminMain(urls))
+	TemplRender(w, r, templates.AdminMain(urls, domain))
 	fmt.Println("ADMIN HANDLER END")
 }
 
