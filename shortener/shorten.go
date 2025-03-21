@@ -24,6 +24,16 @@ type URL struct {
 	Hits      sql.NullInt64
 }
 
+type Hit struct {
+	ID              uuid.UUID
+	URLID           uuid.UUID
+	Referer         string
+	SecChUa         string
+	SecChUaMobile   string
+	SecChUaPlatform string
+	CreatedAt       time.Time
+}
+
 func (url URL) HoldString() string {
 	if url.Hold {
 		return "true"
@@ -98,7 +108,13 @@ func Check(slug string) (URL, error) {
 }
 
 func Log(URLID uuid.UUID, r *http.Request) error {
-	_, err := DB.Exec(`INSERT INTO hits (url_id,referer, created_at) VALUES ($1, $2, NOW())`, URLID, r.Header.Get("Referer"))
+	_, err := DB.Exec(`INSERT INTO hits (url_id, referer, sec_ch_ua, sec_ch_ua_mobile, sec_ch_ua_platform, user_agent, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+		URLID,
+		r.Header.Get("Referer"),
+		r.Header.Get("Sec-Ch-Ua"),
+		r.Header.Get("Sec-Ch-Ua-Mobile"),
+		r.Header.Get("Sec-Ch-Ua-Platform"),
+		r.Header.Get("User-Agent"))
 	if err != nil {
 		return fmt.Errorf("err: select slug: %w", err)
 	}

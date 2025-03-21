@@ -195,6 +195,7 @@ func newURLHandler(w http.ResponseWriter, r *http.Request) {
 
 func resetDestroyHandler(w http.ResponseWriter, r *http.Request) {
 	if err := shortener.Reset(); err != nil {
+		fmt.Println(err)
 		http.Error(w, "Error!", 500)
 	}
 	if _, err := w.Write([]byte("written!")); err != nil {
