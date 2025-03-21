@@ -31,6 +31,7 @@ type Hit struct {
 	SecChUa         string
 	SecChUaMobile   string
 	SecChUaPlatform string
+	UserAgent       string
 	CreatedAt       time.Time
 }
 
@@ -50,6 +51,10 @@ func (url URL) HitsString() string {
 
 func (rec URL) CreatedAtFormatted() string {
 	return rec.CreatedAt.Format("2 Jan 2006")
+}
+
+func (h Hit) CreatedAtFormatted() string {
+	return h.CreatedAt.Format("2 Jan 2006")
 }
 
 var slugLength = 4
@@ -137,4 +142,22 @@ func Delete(id uuid.UUID) error {
 		return fmt.Errorf("err: delete: %w", err)
 	}
 	return nil
+}
+
+func Analyze(ID uuid.UUID) ([]Hit, error) {
+	var hits []Hit
+	var hit Hit
+	rows, err := DB.Query(`SELECT hit_id, url_id, referer, sec_ch_ua, sec_ch_ua_mobile, sec_ch_ua_platform, user_agent, created_at FROM hits WHERE url_id = $1`, ID)
+	if err != nil {
+		return nil, fmt.Errorf("err: select: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&hit.ID, &hit.URLID, &hit.Referer, &hit.SecChUa, &hit.SecChUaMobile, &hit.SecChUaPlatform, &hit.UserAgent, &hit.CreatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("err: scan: %w", err)
+		}
+		hits = append(hits, hit)
+	}
+	return hits, nil
 }

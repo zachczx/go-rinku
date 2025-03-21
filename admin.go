@@ -6,10 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"gorinku/shortener"
 	"gorinku/templates"
 
-	"github.com/google/uuid"
 	gorillaSessions "github.com/gorilla/sessions"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/magiclinks"
 	emailML "github.com/stytchauth/stytch-go/v16/stytch/consumer/magiclinks/email"
@@ -165,64 +163,4 @@ func (s *AuthService) logout(u *User) http.Handler {
 		u.Username = ""
 		TemplRender(w, r, templates.LoggedOut())
 	})
-}
-
-func newURLHandler(w http.ResponseWriter, r *http.Request) {
-	urlPrefix := r.FormValue("protocol")
-	if urlPrefix != "http" && urlPrefix != "https" {
-		http.Error(w, "Error!", 500)
-		return
-	}
-	target := urlPrefix + "://" + r.FormValue("target")
-	hold := false
-	fmt.Println(r.FormValue("hold"))
-	if r.FormValue("hold") == "true" {
-		hold = true
-	}
-	input := shortener.URL{Slug: r.FormValue("slug"), Target: target, Hold: hold}
-	if err := shortener.Insert(input); err != nil {
-		fmt.Println(err)
-		TemplRender(w, r, templates.Error(emptyString))
-	}
-	urls, err := shortener.ListAll()
-	if err != nil {
-		fmt.Println(err)
-		TemplRender(w, r, templates.Error(emptyString))
-		return
-	}
-	TemplRender(w, r, templates.AdminMain(urls))
-}
-
-func resetDestroyHandler(w http.ResponseWriter, r *http.Request) {
-	if err := shortener.Reset(); err != nil {
-		fmt.Println(err)
-		http.Error(w, "Error!", 500)
-	}
-	if _, err := w.Write([]byte("written!")); err != nil {
-		fmt.Println(err)
-		TemplRender(w, r, templates.Error(emptyString))
-		return
-	}
-}
-
-func deleteURLHandler(w http.ResponseWriter, r *http.Request) {
-	ID := r.PathValue("ID")
-	uuidID, err := uuid.Parse(ID)
-	if err != nil {
-		fmt.Println(err)
-		TemplRender(w, r, templates.Error(emptyString))
-		return
-	}
-	if err := shortener.Delete(uuidID); err != nil {
-		fmt.Println(err)
-		TemplRender(w, r, templates.Error(emptyString))
-		return
-	}
-	urls, err := shortener.ListAll()
-	if err != nil {
-		fmt.Println(err)
-		TemplRender(w, r, templates.Error(emptyString))
-		return
-	}
-	TemplRender(w, r, templates.AdminMain(urls))
 }

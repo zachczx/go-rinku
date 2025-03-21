@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"gorinku/shortener"
-	"gorinku/templates"
 
 	"github.com/a-h/templ"
 	_ "github.com/jackc/pgx/v5/stdlib" // Pg driver
@@ -36,48 +35,14 @@ func main() {
 	)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		TemplRender(w, r, templates.Landing())
-	})
-
-	mux.HandleFunc("GET /{slug}", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("SLUG HANDLER START:", r.URL.Path)
-		slug := r.PathValue("slug")
-		record, err := shortener.Check(slug)
-		if err != nil {
-			fmt.Println(err)
-			TemplRender(w, r, templates.Error(emptyString))
-			return
-		}
-		err = shortener.Log(record.ID, r)
-		if err != nil {
-			fmt.Println(err)
-			TemplRender(w, r, templates.Error(emptyString))
-			return
-		}
-		if !record.Hold {
-			http.Redirect(w, r, record.Target, http.StatusSeeOther)
-			return
-		}
-		TemplRender(w, r, templates.Holding(record.Target))
-		fmt.Println("SLUG HANDLER END")
-	})
+	mux.HandleFunc("GET /{$}", landingHandler)
+	mux.HandleFunc("GET /{slug}", shortenHandler)
+	mux.Handle("GET /assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 
 	// Admin routes
-	mux.HandleFunc("GET /admin/login", func(w http.ResponseWriter, r *http.Request) {
-		TemplRender(w, r, templates.Login())
-	})
-	mux.Handle("GET /admin", service.RequireAuthentication(user, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("ADMIN HANDLER START:", r.URL.Path)
-		urls, err := shortener.ListAll()
-		if err != nil {
-			fmt.Println(err)
-			TemplRender(w, r, templates.Error(emptyString))
-			return
-		}
-		TemplRender(w, r, templates.AdminMain(urls))
-		fmt.Println("ADMIN HANDLER END")
-	})))
+	mux.HandleFunc("GET /admin/login", adminLoginHandler)
+	mux.Handle("GET /admin", service.RequireAuthentication(user, http.HandlerFunc(adminMainHandler)))
+	mux.Handle("GET /admin/analyze/{ID}", service.RequireAuthentication(user, http.HandlerFunc(adminAnalyzeHandler)))
 	mux.HandleFunc("GET /admin/authenticate", service.authenticateHandler)
 	mux.Handle("GET /admin/new", http.RedirectHandler("/admin", http.StatusSeeOther))
 	mux.Handle("POST /admin/new", service.RequireAuthentication(user, http.HandlerFunc(newURLHandler)))
@@ -85,8 +50,6 @@ func main() {
 	mux.Handle("POST /admin/login/sendlink", http.HandlerFunc(service.sendMagicLinkHandler))
 	mux.Handle("GET /admin/reset", service.RequireAuthentication(user, http.HandlerFunc(resetDestroyHandler)))
 	mux.Handle("GET /admin/logout", service.logout(user))
-
-	mux.Handle("GET /assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 
 	server := &http.Server{
 		Addr:              os.Getenv("LISTEN_ADDR"),
