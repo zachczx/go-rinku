@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 705 222" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g id="Rink" transform="matrix(1,0,0,1,-24.3,219)">
+        <g id="Group-1" serif:id="Group 1">
+            <g id="Rink1" serif:id="Rink">
+                <text x="0px" y="0px" style="font-family:'MapleMono-SemiBold', 'Maple Mono', monospace;font-weight:600;font-size:300px;fill:rgb(197,0,90);">R</text>
+                <g transform="matrix(266.667,0,0,266.667,597.5,0)">
+                </g>
+                <text x="157.5px" y="0px" style="font-family:'MapleMono-SemiBold', 'Maple Mono', monospace;font-weight:600;font-size:266.667px;fill:rgb(197,0,90);">i<tspan x="297.5px 437.5px " y="0px 0px ">nk</tspan></text>
+            </g>
+        </g>
+    </g>
+    <g transform="matrix(7.19583,0,0,7.19583,553.048,59.2563)">
+        <path d="M19.5,12L19.5,13.5C19.5,17.614 16.114,21 12,21C7.886,21 4.5,17.614 4.5,13.5L4.5,8C4.5,5.257 6.757,3 9.5,3C12.243,3 14.5,5.257 14.5,8L14.5,13.5C14.5,14.871 13.371,16 12,16C10.629,16 9.5,14.871 9.5,13.5L9.5,9.5" style="fill:none;fill-rule:nonzero;stroke:rgb(197,0,90);stroke-width:3px;"/>
+    </g>
+</svg>
