@@ -106,6 +106,9 @@ a {
 	font-weight: 700;
 }
 
+p {
+	margin: 1rem 0 1rem 0;
+}
 /* fira-code-latin-wght-normal */
 @font-face {
 	font-family: 'Fira Code Variable';
