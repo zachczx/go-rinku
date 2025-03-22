@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"gorinku/shortener"
+	"rinku/shortener"
 
 	"github.com/a-h/templ"
 	_ "github.com/jackc/pgx/v5/stdlib" // Pg driver

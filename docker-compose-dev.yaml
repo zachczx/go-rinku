@@ -1,4 +1,4 @@
-name: go-rinku
+name: rinku
 
 services:
   dev:
@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '6001:6001'
+      - '6661:6661'
     restart: unless-stopped
     env_file:
       - .env

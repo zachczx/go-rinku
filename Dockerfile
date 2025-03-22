@@ -24,13 +24,13 @@ ENV LISTEN_ADDR={$LISTEN_ADDR}
 
 # Build
 RUN templ generate && \
-    GOOS=linux go build -o /app/go-rinku
+    GOOS=linux go build -o /app/rinku
 
 ####################################################################################
 
 FROM node:22.14 AS second
 WORKDIR /app
-COPY --from=first /app/package.json /app/go-rinku /app/package-lock.json /app/
+COPY --from=first /app/package.json /app/rinku /app/package-lock.json /app/
 COPY --from=first /app/templates /app/templates
 COPY --from=first /app/assets /app/assets
 RUN npm install
@@ -42,11 +42,11 @@ RUN npx @tailwindcss/cli -i ./assets/css/index.css -o ./assets/css/output/styles
 # Only the builder requires golang:alpine (410mb+) vs alpine (50mb)
 FROM alpine
 WORKDIR /app
-COPY --from=second /app/go-rinku ./go-rinku
+COPY --from=second /app/rinku ./rinku
 COPY --from=second /app/assets ./assets
 ENV LISTEN_ADDR=${LISTEN_ADDR}
 EXPOSE ${LISTEN_ADDR}
 
 # Run
-CMD ["/app/go-rinku"]
+CMD ["/app/rinku"]
 

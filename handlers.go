@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"gorinku/shortener"
-	"gorinku/templates"
+	"rinku/shortener"
+	"rinku/templates"
 
 	"github.com/google/uuid"
 )

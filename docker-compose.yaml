@@ -1,4 +1,4 @@
-name: go-rinku
+name: rinku
 
 services:
   app:

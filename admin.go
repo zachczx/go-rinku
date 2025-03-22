@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"gorinku/templates"
+	"rinku/templates"
 
 	gorillaSessions "github.com/gorilla/sessions"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/magiclinks"
