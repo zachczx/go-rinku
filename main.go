@@ -53,10 +53,12 @@ func main() {
 	mux.Handle("GET /admin/reset", service.RequireAuthentication(user, http.HandlerFunc(resetDestroyHandler)))
 	mux.Handle("GET /admin/logout", service.logout(user))
 
+	wrapped := StatusLogger(mux)
+
 	server := &http.Server{
 		Addr:              os.Getenv("LISTEN_ADDR"),
 		ReadHeaderTimeout: 5 * time.Second,
-		Handler:           mux,
+		Handler:           wrapped,
 	}
 
 	err = server.ListenAndServe()
