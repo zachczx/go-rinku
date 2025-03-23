@@ -12,7 +12,7 @@ RUN go mod download
 # Removed this command because the @latest one suffices. The version variable one looks more complicated than necessary.
 # RUN go install github.com/a-h/templ/cmd/templ@$(go list -m -f '{{ .Version }}' github.com/a-h/templ)
 # Technically this needn't be here if `templ generate` is done in dev, but no harm doing this. 
-RUN go install github.com/a-h/templ/cmd/templ@v0.3.833
+RUN go install github.com/a-h/templ/cmd/templ@v0.3.850
 
 # Copy the source code. Note the slash at the end, as explained in
 # https://docs.docker.com/reference/dockerfile/#copy

@@ -20,6 +20,8 @@ func (rec *StatusRecorder) WriteHeader(statusCode int) {
 	rec.status = statusCode
 }
 
+var limit int = 300 // setting limit for 300ms as minimum acceptable page load speed
+
 func StatusLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -54,7 +56,7 @@ func StatusLogger(next http.Handler) http.Handler {
 			}
 
 			switch {
-			case since < time.Millisecond*100:
+			case since < (time.Millisecond * time.Duration(limit)):
 				duration = pterm.Green(since)
 			default:
 				duration = pterm.Red(since)

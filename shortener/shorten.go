@@ -4,12 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand/v2"
+	"net"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/pgtype"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -32,6 +35,7 @@ type Hit struct {
 	SecChUaMobile   string
 	SecChUaPlatform string
 	UserAgent       string
+	IPAddr          pgtype.Inet
 	CreatedAt       time.Time
 }
 
@@ -55,6 +59,13 @@ func (rec URL) CreatedAtFormatted() string {
 
 func (h Hit) CreatedAtFormatted() string {
 	return h.CreatedAt.Format("2 Jan 2006")
+}
+
+func (h Hit) IPAddrString() string {
+	if val, ok := h.IPAddr.Get().(*net.IPNet); ok {
+		return val.String()
+	}
+	return ""
 }
 
 var slugLength = 4
@@ -113,13 +124,16 @@ func Check(slug string) (URL, error) {
 }
 
 func Log(URLID uuid.UUID, r *http.Request) error {
-	_, err := DB.Exec(`INSERT INTO hits (url_id, referer, sec_ch_ua, sec_ch_ua_mobile, sec_ch_ua_platform, user_agent, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+	IPAddr := GetClientIP(r)
+	_, err := DB.Exec(`INSERT INTO hits (url_id, referer, sec_ch_ua, sec_ch_ua_mobile, sec_ch_ua_platform, user_agent, ip_address, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
 		URLID,
 		r.Header.Get("Referer"),
 		r.Header.Get("Sec-Ch-Ua"),
 		r.Header.Get("Sec-Ch-Ua-Mobile"),
 		r.Header.Get("Sec-Ch-Ua-Platform"),
-		r.Header.Get("User-Agent"))
+		r.Header.Get("User-Agent"),
+		IPAddr,
+	)
 	if err != nil {
 		return fmt.Errorf("err: select slug: %w", err)
 	}
@@ -147,17 +161,73 @@ func Delete(id uuid.UUID) error {
 func Analyze(ID uuid.UUID) ([]Hit, error) {
 	var hits []Hit
 	var hit Hit
-	rows, err := DB.Query(`SELECT hit_id, url_id, referer, sec_ch_ua, sec_ch_ua_mobile, sec_ch_ua_platform, user_agent, created_at FROM hits WHERE url_id = $1`, ID)
+	rows, err := DB.Query(`SELECT hit_id, url_id, referer, sec_ch_ua, sec_ch_ua_mobile, sec_ch_ua_platform, user_agent, ip_address, created_at FROM hits WHERE url_id = $1`, ID)
 	if err != nil {
 		return nil, fmt.Errorf("err: select: %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&hit.ID, &hit.URLID, &hit.Referer, &hit.SecChUa, &hit.SecChUaMobile, &hit.SecChUaPlatform, &hit.UserAgent, &hit.CreatedAt)
+		err := rows.Scan(&hit.ID, &hit.URLID, &hit.Referer, &hit.SecChUa, &hit.SecChUaMobile, &hit.SecChUaPlatform, &hit.UserAgent, &hit.IPAddr, &hit.CreatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("err: scan: %w", err)
 		}
+
 		hits = append(hits, hit)
 	}
 	return hits, nil
+}
+
+// Library to grab IP addresses copied from https://github.com/vikram1565/request-ip.
+// Standard headers list
+var requestHeaders = []string{"X-Client-Ip", "X-Forwarded-For", "Cf-Connecting-Ip", "Fastly-Client-Ip", "True-Client-Ip", "X-Real-Ip", "X-Cluster-Client-Ip", "X-Forwarded", "Forwarded-For", "Forwarded"}
+
+// GetClientIP - returns IP address string; The IP address if known, defaulting to empty string if unknown.
+func GetClientIP(r *http.Request) string {
+	for _, header := range requestHeaders {
+		switch header {
+		case "X-Forwarded-For": // Load-balancers (AWS ELB) or proxies.
+			if host, correctIP := getClientIPFromXForwardedFor(r.Header.Get(header)); correctIP {
+				return host
+			}
+		default:
+			if host := r.Header.Get(header); isCorrectIP(host) {
+				return host
+			}
+		}
+	}
+
+	//  remote address checks.
+	host, _, splitHostPortError := net.SplitHostPort(r.RemoteAddr)
+	if splitHostPortError == nil && isCorrectIP(host) {
+		return host
+	}
+	return ""
+}
+
+// getClientIPFromXForwardedFor  - returns first known ip address else return empty string
+func getClientIPFromXForwardedFor(headers string) (string, bool) {
+	if headers == "" {
+		return "", false
+	}
+	// x-forwarded-for may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP"
+	// Therefore, the right-most IP address is the IP address of the most recent proxy
+	// and the left-most IP address is the IP address of the originating client.
+	forwardedIPs := strings.Split(headers, ",")
+	for _, IP := range forwardedIPs {
+		// header can contain spaces too, strip those out.
+		IP = strings.TrimSpace(IP)
+		// make sure we only use this if it's ipv4 (ip:port)
+		if split := strings.Split(IP, ":"); len(split) == 2 {
+			IP = split[0]
+		}
+		if isCorrectIP(IP) {
+			return IP, true
+		}
+	}
+	return "", false
+}
+
+// isCorrectIP - return true if ip string is valid textual representation of an IP address, else returns false
+func isCorrectIP(IP string) bool {
+	return net.ParseIP(IP) != nil
 }

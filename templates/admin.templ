@@ -10,35 +10,37 @@ templ Default(message string) {
 templ AdminMain(urls []shortener.URL, domain string) {
 	@Base("Admin Control Panel") {
 		<div class="mx-auto grid h-full min-h-dvh w-full max-w-[1400px] grid-cols-[auto_1fr] grid-rows-[auto_1fr] content-start gap-x-16 pt-4">
-			<div class="col-span-2 flex justify-end"><a href="/admin/logout" class="underline">Logout</a></div>
+			<div class="col-span-2 flex justify-end">
+				@LogoutButton()
+			</div>
 			<div class="pt-12">
 				<h2 class="mb-4 text-4xl font-medium">Add New</h2>
 				<div>
-					<form method="post" action="/admin/new" class="grid gap-y-4" hx-post="/admin/new" hx-target="#urls" hx-swap="outerHTML" hx-select="#urls">
+					<form id="new-url-form" method="post" action="/admin/new" class="grid gap-y-4" hx-post="/admin/new" hx-target="#urls" hx-swap="outerHTML" hx-select="#urls">
 						<div class="flex items-center gap-2">
 							{ domain }
 							<label class="input">
 								// <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path></g></svg>
-								<input type="text" name="slug" class="grow" placeholder="Slug (optional)"/>
+								<input type="text" name="slug" class="grow" placeholder="Slug (optional)" tabindex="1"/>
 							</label>
 						</div>
 						<div class="join grid grid-cols-[auto_1fr]">
-							<select class="select join-item" name="protocol">
+							<select class="select join-item" name="protocol" tabindex="0">
 								<option value="https" selected>https</option>
 								<option value="http">http</option>
 							</select>
 							<label class="input join-item">
 								// <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path></g></svg>
-								<input type="text" name="target" class="grow" placeholder="Target URL"/>
+								<input type="text" name="target" class="grow" placeholder="Target URL" tabindex="1" required/>
 							</label>
 						</div>
 						<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-full border p-4">
-							<label class="fieldset-label">
+							<label class="fieldset-label" tabindex="1">
 								<input type="checkbox" name="hold" value="true" checked="checked" class="checkbox"/>
 								Display Holding Message
 							</label>
 						</fieldset>
-						<button class="btn btn-primary">Add</button>
+						<button class="btn btn-primary" tabindex="1">Add</button>
 					</form>
 				</div>
 			</div>
@@ -94,8 +96,13 @@ templ AdminMain(urls []shortener.URL, domain string) {
 						</div>
 					}
 				} else {
-					<div class="col-span-7 w-full text-center">Nothing here!</div>
+					<div class="col-span-7 w-full py-4 text-center">Nothing here!</div>
 				}
+				<script>
+				(() => {
+					document.getElementById("new-url-form").reset()
+				})()
+				</script>
 			</div>
 		</div>
 	}
@@ -103,7 +110,7 @@ templ AdminMain(urls []shortener.URL, domain string) {
 
 templ AdminAnalyze(hits []shortener.Hit) {
 	@Base("Admin Control Panel") {
-		<div class="mx-auto grid h-full min-h-dvh w-full max-w-[1400px] grid-rows-[auto_1fr] content-start gap-x-16 pt-4">
+		<div class="mx-auto grid h-full min-h-dvh w-full max-w-[1400px] grid-rows-[auto_1fr] content-start pt-4">
 			<div class="grid grid-cols-2">
 				<div class="flex">
 					<a href="/admin" class="flex items-center gap-2 underline">
@@ -114,21 +121,22 @@ templ AdminAnalyze(hits []shortener.Hit) {
 					</a>
 				</div>
 				<div class="flex justify-end">
-					<a href="/admin/logout" class="underline">Logout</a>
+					@LogoutButton()
 				</div>
 			</div>
-			<div id="urls" class="grid w-full grid-cols-[auto_1fr_1fr_auto_auto_auto_auto] content-start pt-12">
-				<div class="bg-base-300 py-4 ps-4 pe-8 font-medium break-all">ID</div>
-				<div class="bg-base-300 px-8 py-4 font-medium">Referer</div>
+			<div id="urls" class="grid w-full grid-cols-[1fr_1fr_auto_auto_auto_auto_auto] content-start overflow-x-auto pt-12">
+				// <div class="bg-base-300 py-4 ps-4 pe-8 font-medium break-all">ID</div>
+				<div class="bg-base-300 ps-4 pe-8 py-4 font-medium">Referer</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">UA</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">Mobile</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">Platform</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">User Agent</div>
-				<div class="bg-base-300 px-8 py-4 font-medium">Created At</div>
+				<div class="bg-base-300 px-8 py-4 font-medium">IP</div>
+				<div class="bg-base-300 ps-8 pe-4 py-4 font-medium">Created At</div>
 				if len(hits) > 0 {
 					for i := 0; i < len(hits); i++ {
-						<div class="border-b-base-content/30 border-b py-4 ps-4 pe-8">{ hits[i].ID.String() }</div>
-						<div class="border-b-base-content/30 border-b px-8 py-4">
+						// <div class="border-b-base-content/30 border-b py-4 ps-4 pe-8">{ hits[i].ID.String() }</div>
+						<div class="border-b-base-content/30 border-b ps-4 pe-8 py-4 break-words">
 							if len(hits[i].Referer) > 0 {
 								<a href={ templ.URL(hits[i].Referer) }>{ hits[i].Referer }</a>
 							} else {
@@ -139,12 +147,22 @@ templ AdminAnalyze(hits []shortener.Hit) {
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].SecChUaMobile }</div>
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].SecChUaPlatform }</div>
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].UserAgent }</div>
-						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].CreatedAtFormatted() }</div>
+						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].IPAddrString() }</div>
+						<div class="border-b-base-content/30 border-b ps-8 pe-4 py-4">{ hits[i].CreatedAtFormatted() }</div>
 					}
 				} else {
-					<div class="col-span-7 w-full text-center">Nothing here!</div>
+					<div class="col-span-7 w-full py-4 text-center">Nothing here!</div>
 				}
 			</div>
 		</div>
 	}
+}
+
+templ LogoutButton() {
+	<a href="/admin/logout" class="flex gap-2 items-center underline">
+		Logout
+		<svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" class="material-symbols:logout" viewBox="0 0 24 24">
+			<path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"></path>
+		</svg>
+	</a>
 }
