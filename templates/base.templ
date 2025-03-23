@@ -32,27 +32,35 @@ templ Holding(target string) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<meta description="Rinku"/>
-			<meta http-equiv="refresh" content={ "3; url=" + target }/>
+			<meta http-equiv="refresh" content={ "4; url=" + target }/>
 			<link href="/assets/css/raw.css" rel="stylesheet"/>
 		</head>
 		<body>
 			<main>
 				<div>
-					<img src="/assets/rinku-logo.svg" alt="" class="w-72"/>
+					<img src="/assets/rinku-logo.svg" alt="" class="logo"/>
 					<p>Redirecting you to <a href={ templ.URL(target) }>{ target }</a> in <span id="counter">3</span>...</p>
 				</div>
 				<footer>
 					🦖 © Zixian Chen 🦕 <a href="https://zixianchen.com/projects" class="underline">Other Stuff</a>
 				</footer>
 			</main>
+			<div class="hidden" id="next" data-url={ target }></div>
 			<script>
-				let count = 3
-				const counter = document.getElementById("counter")
-				setInterval(() => {
-					if (count === 0) {return}
-					count -= 1
-					counter.innerText = String(count)
-				}, 980)
+				(() => {
+					let count = 3
+					const counter = document.getElementById("counter")
+					setInterval(() => {
+						if (count <= 1) {
+							const el = document.getElementById("next")
+							const next = el.dataset.url
+							window.location.href = next
+							return
+						}
+						count -= 1
+						counter.innerText = String(count)
+					}, 930)
+				})()
 			</script>
 		</body>
 	</html>
