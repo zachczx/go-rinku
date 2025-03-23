@@ -126,17 +126,17 @@ templ AdminAnalyze(hits []shortener.Hit) {
 			</div>
 			<div id="urls" class="grid w-full grid-cols-[1fr_1fr_auto_auto_auto_auto_auto] content-start overflow-x-auto pt-12">
 				// <div class="bg-base-300 py-4 ps-4 pe-8 font-medium break-all">ID</div>
-				<div class="bg-base-300 ps-4 pe-8 py-4 font-medium">Referer</div>
+				<div class="bg-base-300 py-4 ps-4 pe-8 font-medium">Referer</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">UA</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">Mobile</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">Platform</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">User Agent</div>
 				<div class="bg-base-300 px-8 py-4 font-medium">IP</div>
-				<div class="bg-base-300 ps-8 pe-4 py-4 font-medium">Created At</div>
+				<div class="bg-base-300 py-4 ps-8 pe-4 font-medium">Created At</div>
 				if len(hits) > 0 {
 					for i := 0; i < len(hits); i++ {
 						// <div class="border-b-base-content/30 border-b py-4 ps-4 pe-8">{ hits[i].ID.String() }</div>
-						<div class="border-b-base-content/30 border-b ps-4 pe-8 py-4 break-words">
+						<div class="border-b-base-content/30 border-b py-4 ps-4 pe-8 break-words">
 							if len(hits[i].Referer) > 0 {
 								<a href={ templ.URL(hits[i].Referer) }>{ hits[i].Referer }</a>
 							} else {
@@ -148,7 +148,7 @@ templ AdminAnalyze(hits []shortener.Hit) {
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].SecChUaPlatform }</div>
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].UserAgent }</div>
 						<div class="border-b-base-content/30 border-b px-8 py-4">{ hits[i].IPAddrString() }</div>
-						<div class="border-b-base-content/30 border-b ps-8 pe-4 py-4">{ hits[i].CreatedAtFormatted() }</div>
+						<div class="border-b-base-content/30 border-b py-4 ps-8 pe-4">{ hits[i].CreatedAtFormatted() }</div>
 					}
 				} else {
 					<div class="col-span-7 w-full py-4 text-center">Nothing here!</div>
@@ -159,7 +159,7 @@ templ AdminAnalyze(hits []shortener.Hit) {
 }
 
 templ LogoutButton() {
-	<a href="/admin/logout" class="flex gap-2 items-center underline">
+	<a href="/admin/logout" class="flex items-center gap-2 underline">
 		Logout
 		<svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" class="material-symbols:logout" viewBox="0 0 24 24">
 			<path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"></path>

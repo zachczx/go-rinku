@@ -116,7 +116,7 @@ func ListAll() ([]URL, error) {
 
 func Check(slug string) (URL, error) {
 	var rec URL
-	err := DB.QueryRow(`SELECT * FROM urls WHERE slug = $1`, slug).Scan(&rec.ID, &rec.Slug, &rec.Target, &rec.Hold, &rec.CreatedAt)
+	err := DB.QueryRow(`SELECT url_id, slug, target, hold, created_at FROM urls WHERE slug = $1`, slug).Scan(&rec.ID, &rec.Slug, &rec.Target, &rec.Hold, &rec.CreatedAt)
 	if err != nil {
 		return rec, fmt.Errorf("err: select slug: %w", err)
 	}

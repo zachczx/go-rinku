@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"rinku/shortener"
 	"rinku/templates"
@@ -72,6 +73,10 @@ func deleteURLHandler(w http.ResponseWriter, r *http.Request) {
 
 func shortenHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("SLUG HANDLER START:", r.URL.Path)
+	if strings.Contains(r.URL.Path, "favicon.ico") {
+		fmt.Println("Not abbreviating for favicon")
+		return
+	}
 	slug := r.PathValue("slug")
 	record, err := shortener.Check(slug)
 	if err != nil {
@@ -79,6 +84,7 @@ func shortenHandler(w http.ResponseWriter, r *http.Request) {
 		TemplRender(w, r, templates.Error(emptyString))
 		return
 	}
+	fmt.Println(record)
 	err = shortener.Log(record.ID, r)
 	if err != nil {
 		fmt.Println(err)

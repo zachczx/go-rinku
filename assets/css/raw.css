@@ -109,6 +109,11 @@ a {
 p {
 	margin: 1rem 0 1rem 0;
 }
+
+img.logo {
+	width: 16rem;
+}
+
 /* fira-code-latin-wght-normal */
 @font-face {
 	font-family: 'Fira Code Variable';
