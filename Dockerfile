@@ -28,7 +28,7 @@ RUN templ generate && \
 
 ####################################################################################
 
-FROM node:22.14 AS second
+FROM node:23.10 AS second
 WORKDIR /app
 COPY --from=first /app/package.json /app/rinku /app/package-lock.json /app/
 COPY --from=first /app/templates /app/templates
